@@ -1,51 +1,185 @@
-<script>
-async function sendMessage() {
-  const input = document.getElementById("message");
-  const chat = document.getElementById("chat");
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Naimat AI</title>
 
-  const userMessage = input.value.trim();
-
-  if (!userMessage) return;
-
-  // Show user's message
-  const userDiv = document.createElement("div");
-  userDiv.className = "message";
-  userDiv.textContent = "You: " + userMessage;
-  chat.appendChild(userDiv);
-
-  // Clear input
-  input.value = "";
-
-  // Show loading
-  const aiDiv = document.createElement("div");
-  aiDiv.className = "message";
-  aiDiv.textContent = "Naimat AI: Thinking...";
-  chat.appendChild(aiDiv);
-
-  try {
-    const response = await fetch("/.netlify/functions/chat", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        message: userMessage
-      })
-    });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(data.error || "API request failed");
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
     }
 
-    aiDiv.textContent = "Naimat AI: " + (data.reply || data.message || "No response");
+    body {
+      background: #0b0f14;
+      color: white;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
 
-  } catch (error) {
-    console.error(error);
-    aiDiv.textContent = "Naimat AI: Error — " + error.message;
-  }
+    header {
+      padding: 18px;
+      text-align: center;
+      border-bottom: 1px solid #222;
+      font-size: 24px;
+      font-weight: bold;
+    }
 
-  chat.scrollTop = chat.scrollHeight;
-}
-</script>
+    .chat {
+      flex: 1;
+      padding: 20px;
+      overflow-y: auto;
+    }
+
+    .welcome {
+      text-align: center;
+      margin-top: 30%;
+      color: #aaa;
+    }
+
+    .input-area {
+      display: flex;
+      padding: 12px;
+      gap: 8px;
+      border-top: 1px solid #222;
+    }
+
+    input {
+      flex: 1;
+      padding: 14px;
+      border-radius: 12px;
+      border: 1px solid #333;
+      background: #151a21;
+      color: white;
+      outline: none;
+    }
+
+    button {
+      padding: 14px 18px;
+      border: none;
+      border-radius: 12px;
+      background: white;
+      color: black;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .message {
+      background: #151a21;
+      padding: 12px;
+      border-radius: 12px;
+      margin-bottom: 10px;
+      line-height: 1.5;
+    }
+  </style>
+</head>
+
+<body>
+
+  <header>🤖 Naimat AI</header>
+
+  <div class="chat" id="chat">
+    <div class="welcome">
+      <h2>Hello! 👋</h2>
+      <p>I'm Naimat AI.</p>
+      <p>Ask me anything.</p>
+    </div>
+  </div>
+
+  <div class="input-area">
+    <input
+      id="message"
+      type="text"
+      placeholder="Ask Naimat AI..."
+      autocomplete="off"
+    />
+
+    <button onclick="sendMessage()">Send</button>
+  </div>
+
+  <script>
+    async function sendMessage() {
+
+      const input = document.getElementById("message");
+      const chat = document.getElementById("chat");
+
+      const userMessage = input.value.trim();
+
+      if (!userMessage) return;
+
+      // Show user's message
+      const userDiv = document.createElement("div");
+      userDiv.className = "message";
+      userDiv.textContent = "You: " + userMessage;
+      chat.appendChild(userDiv);
+
+      // Clear input
+      input.value = "";
+
+      // Show loading message
+      const aiDiv = document.createElement("div");
+      aiDiv.className = "message";
+      aiDiv.textContent = "Naimat AI: Thinking...";
+      chat.appendChild(aiDiv);
+
+      chat.scrollTop = chat.scrollHeight;
+
+      try {
+
+        const response = await fetch(
+          "/.netlify/functions/chat",
+          {
+            method: "POST",
+
+            headers: {
+              "Content-Type": "application/json"
+            },
+
+            body: JSON.stringify({
+              message: userMessage
+            })
+          }
+        );
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(
+            data.error || "API request failed"
+          );
+        }
+
+        aiDiv.textContent =
+          "Naimat AI: " +
+          (data.reply || data.message || "No response");
+
+      } catch (error) {
+
+        console.error(error);
+
+        aiDiv.textContent =
+          "Naimat AI: Error — " +
+          error.message;
+      }
+
+      chat.scrollTop = chat.scrollHeight;
+    }
+
+    // Press Enter to send
+    document
+      .getElementById("message")
+      .addEventListener("keydown", function(event) {
+
+        if (event.key === "Enter") {
+          sendMessage();
+        }
+
+      });
+  </script>
+
+</body>
+</html>
